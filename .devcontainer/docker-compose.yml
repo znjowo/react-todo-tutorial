@@ -1,0 +1,41 @@
+services:
+    app:
+        build:
+            context: ..
+            dockerfile: .devcontainer/Dockerfile
+        volumes:
+            - ..:/workspace:cached
+        ports:
+            - "8000:8000"
+        environment:
+            - DB_NAME=todo_db
+            - DB_USER=todo_user
+            - DB_PASSWORD=todo_password
+            - DB_HOST=db
+            - DB_PORT=3306
+            - DEBUG=True
+        depends_on:
+            db:
+                condition: service_healthy
+        command: sleep infinity
+
+    db:
+        image: mariadb:10.11
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: root_password
+            MYSQL_DATABASE: todo_db
+            MYSQL_USER: todo_user
+            MYSQL_PASSWORD: todo_password
+        ports:
+            - "3306:3306"
+        volumes:
+            - mariadb_data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    mariadb_data:
