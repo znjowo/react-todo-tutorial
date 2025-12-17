@@ -6,13 +6,13 @@ class TodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
         fields = ['id', 'name', 'checked', 'created_at', 'deadline', 'group', 'user', 'group_name']
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'user']
 
 class TodoGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoGroup
         fields = ['id', 'name', 'created_at', 'user']
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'user']
 
 class TodoGroupDetailSerializer(serializers.ModelSerializer):
     todos = TodoSerializer(many=True, read_only=True)
@@ -20,7 +20,7 @@ class TodoGroupDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoGroup
         fields = ['id', 'name', 'created_at', 'user', 'todos']
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'user']
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
