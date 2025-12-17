@@ -9,8 +9,6 @@ class TodoSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at']
 
 class TodoGroupSerializer(serializers.ModelSerializer):
-    todos = TodoSerializer(many=True, read_only=True)
-
     class Meta:
         model = TodoGroup
         fields = ['id', 'name', 'created_at', 'user']

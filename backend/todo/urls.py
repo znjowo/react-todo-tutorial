@@ -4,8 +4,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import TodoViewSet, TodoGroupViewSet, OverdueTodoView, UserRegisterView, UserDeleteView
 
 router = DefaultRouter()
-router.register(r'todos', TodoViewSet)
-router.register(r'groups', TodoGroupViewSet)
+router.register(r'todos', TodoViewSet, basename='todo')
+router.register(r'groups', TodoGroupViewSet, basename='todogroup')
 
 urlpatterns = [
     path('todos/overdue-count/', OverdueTodoView.as_view()),

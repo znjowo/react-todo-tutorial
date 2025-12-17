@@ -11,6 +11,8 @@ class TodoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Todo.objects.none()
         queryset = Todo.objects.filter(user=self.request.user)
         sort = self.request.query_params.get('sort')
         if sort:
@@ -25,13 +27,15 @@ class TodoGroupViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return TodoGroup.objects.none()
         return TodoGroup.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return TodoGroupDetailSerializer
         return TodoGroupSerializer
-    
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
