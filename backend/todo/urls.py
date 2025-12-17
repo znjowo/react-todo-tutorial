@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import TodoViewSet, TodoGroupViewSet, OverdueTodoView, UserRegisterView, UserDeleteView
+from .views import TodoViewSet, TodoGroupViewSet, OverdueTodoView, UserRegisterView, UserDeleteView, UserMeView
 
 router = DefaultRouter()
 router.register(r'todos', TodoViewSet, basename='todo')
@@ -14,4 +14,5 @@ urlpatterns = [
     path('auth/login/', TokenObtainPairView.as_view()),
     path('auth/refresh/', TokenRefreshView.as_view()),
     path('auth/delete/', UserDeleteView.as_view()),
+    path('auth/me/', UserMeView.as_view()),
 ]

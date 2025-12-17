@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils import timezone
 from .models import Todo, TodoGroup
-from .serializers import TodoSerializer, TodoGroupSerializer, TodoGroupDetailSerializer, UserRegisterSerializer
+from .serializers import TodoSerializer, TodoGroupSerializer, TodoGroupDetailSerializer, UserRegisterSerializer, UserSerializer
 
 class TodoViewSet(viewsets.ModelViewSet):
     serializer_class = TodoSerializer
@@ -50,6 +50,13 @@ class OverdueTodoView(APIView):
         ).count()
 
         return Response({'overdue_count': count})
+
+class UserMeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
 class UserRegisterView(APIView):
     permission_classes = [AllowAny]
