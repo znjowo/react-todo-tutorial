@@ -1,66 +1,33 @@
-export type Todo = {
-  id: number;
-  name: string;
-  checked: boolean;
-};
+import client from './client';
+import { Todo, TodoCreateRequest, TodoUpdateRequest, OverdueCountResponse } from '../types';
 
-const originURL: URL = new URL("http://localhost:8000/api/todo/");
+export const getTodos = async (sort?: string): Promise<Todo[]> => {
+  const params = sort ? { sort } : {};
+  const res = await client.get<Todo[]>('/todos/', { params });
 
-const getToDoList = (): Promise<Todo[]> => {
-  const url = new URL(`/api/todo/`, originURL);
-  return new Promise((resolve, reject) => {
-    fetch(url.href)
-      .then((res) => res.json())
-      .then((json: Todo[]) => resolve(json))
-      .catch((error: Error) => reject(error));
-  });
-};
+  return res.data;
+}
 
-const postCreateTodo = (name: string): Promise<Todo> => {
-  const url = new URL(`/api/todo/`, originURL);
-  return new Promise((resolve, reject) => {
-    fetch(url.href, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: name,
-      }),
-    })
-      .then((res) => res.json())
-      .then((json: Todo) => resolve(json))
-      .catch((error: Error) => reject(error));
-  });
-};
+export const getTodo = async (id: number): Promise<Todo> => {
+  const res = await client.get<Todo>(`/todos/${id}/`);
+  return res.data;
+}
 
-const patchCheckTodo = (id: number, checked: boolean): Promise<void> => {
-  const url = new URL(`/api/todo/${id}/`, originURL);
-  return new Promise((resolve, reject) => {
-    fetch(url.href, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        checked: checked,
-      }),
-    })
-      .then(() => resolve())
-      .catch((error: Error) => reject(error));
-  });
-};
+export const createTodo = async (data: TodoCreateRequest): Promise<Todo> => {
+  const res = await client.post<Todo>('/todos/', data);
+  return res.data;
+}
 
-const deleteTodo = (id: number): Promise<void> => {
-  const url = new URL(`/api/todo/${id}/`, originURL);
-  return new Promise((resolve, reject) => {
-    fetch(url.href, {
-      method: "DELETE",
-    })
-      .then(() => resolve())
-      .catch((error: Error) => reject(error));
-  });
-};
+export const updateTodo = async (id: number, data: TodoUpdateRequest): Promise<Todo> => {
+  const res = await client.patch<Todo>(`/todos/${id}/`, data);
+  return res.data;
+}
 
-export { getToDoList, postCreateTodo, patchCheckTodo, deleteTodo };
+export const deleteTodo = async (id: number): Promise<void> => {
+  await client.delete(`/todos/${id}/`);
+}
+
+export const getOverdueCount = async (): Promise<number> => {
+  const res = await client.get<OverdueCountResponse>('/todos/overdue-count/');
+  return res.data.overdue_count;
+}
