@@ -3,8 +3,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils import timezone
-from .models import Todo, TodoGroup
-from .serializers import TodoSerializer, TodoGroupSerializer, TodoGroupDetailSerializer, UserRegisterSerializer, UserSerializer
+from .models import Todo, TodoGroup, Tag
+from .serializers import TodoSerializer, TodoGroupSerializer, TodoGroupDetailSerializer, UserRegisterSerializer, UserSerializer, TagSerializer
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TagSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Tag.objects.none()
+        return Tag.objects.all()
 
 class TodoViewSet(viewsets.ModelViewSet):
     serializer_class = TodoSerializer
@@ -20,6 +29,7 @@ class TodoViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    # 保存時にユーザーを設定
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -31,6 +41,7 @@ class TodoGroupViewSet(viewsets.ModelViewSet):
             return TodoGroup.objects.none()
         return TodoGroup.objects.filter(user=self.request.user)
 
+    # idを指定した場合は詳細Serializerを返す
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return TodoGroupDetailSerializer

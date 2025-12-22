@@ -109,3 +109,21 @@ class Todo(models.Model):
 
     def __str__(self):
         return self.name
+
+class Tag(models.Model):
+    name = models.CharField(
+        verbose_name='タグ名',
+        max_length=30,
+    )
+    todos = models.ManyToManyField(
+        Todo,
+        related_name='tags',
+        verbose_name='Todos',
+    )
+
+    class Meta:
+        verbose_name = 'タグ'
+        verbose_name_plural = 'タグ一覧'
+
+    def __str__(self):
+        return self.name

@@ -1,11 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import TodoViewSet, TodoGroupViewSet, OverdueTodoView, UserRegisterView, UserDeleteView, UserMeView
+from .views import TodoViewSet, TodoGroupViewSet, OverdueTodoView, UserRegisterView, UserDeleteView, UserMeView, TagViewSet
 
 router = DefaultRouter()
 router.register(r'todos', TodoViewSet, basename='todo')
 router.register(r'groups', TodoGroupViewSet, basename='todogroup')
+router.register(r'tags', TagViewSet, basename='tag')
 
 urlpatterns = [
     path('todos/overdue-count/', OverdueTodoView.as_view()),

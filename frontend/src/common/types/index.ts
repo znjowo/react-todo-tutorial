@@ -1,3 +1,9 @@
+// Tag型
+export type Tag = {
+  id: number;
+  name: string;
+}
+
 // User型
 export type User = {
   id: number;
@@ -16,6 +22,7 @@ export type Todo = {
   group: number | null;
   user: number;
   group_name: string | null;
+  tags: Tag[];
 }
 
 // TodoGroup型
@@ -54,6 +61,7 @@ export type TodoCreateRequest = {
   name: string;
   deadline?: string;
   group?: number;
+  tag_ids?: number[];
 }
 
 export type TodoUpdateRequest = Partial<TodoCreateRequest & {

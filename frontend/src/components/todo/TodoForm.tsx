@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
-import { TodoCreateRequest, TodoGroup } from '../../common/types';
-import { getGroups } from '../../common/api/group';
+import { Box, TextField, Button, Autocomplete, Chip } from '@mui/material';
+import { TodoCreateRequest, Tag } from '../../common/types';
+import { getTags } from '../../common/api/tag';
 
 interface Props {
   onSubmit: (data: TodoCreateRequest) => Promise<void>;
@@ -11,19 +11,13 @@ interface Props {
 export const TodoForm = ({ onSubmit, groupId }: Props) => {
   const [name, setName] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [selectedGroup, setSelectedGroup] = useState<number | ''>('');
-  const [groups, setGroups] = useState<TodoGroup[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (groupId === undefined) {
-      getGroups().then(setGroups);
-    }
-  }, [groupId]);
-
-  const handleGroupChange = (e: SelectChangeEvent<number | ''>) => {
-    setSelectedGroup(e.target.value as number | '');
-  };
+    getTags().then(setAvailableTags).catch(console.error);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,49 +28,62 @@ export const TodoForm = ({ onSubmit, groupId }: Props) => {
       await onSubmit({
         name: name.trim(),
         deadline: deadline || undefined,
-        group: groupId ?? (selectedGroup || undefined),
+        group: groupId,
+        tag_ids: selectedTags.length > 0 ? selectedTags.map(t => t.id) : undefined,
       });
       setName('');
       setDeadline('');
-      if (groupId === undefined) {
-        setSelectedGroup('');
-      }
+      setSelectedTags([]);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-      <TextField
-        label="タスク名"
-        size="small"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        sx={{ flexGrow: 1, minWidth: 200 }}
-      />
-      <TextField
-        label="期限"
-        type="datetime-local"
-        size="small"
-        value={deadline}
-        onChange={(e) => setDeadline(e.target.value)}
-        slotProps={{ inputLabel: { shrink: true } }}
-      />
-      {groupId === undefined && (
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>グループ</InputLabel>
-          <Select value={selectedGroup} label="グループ" onChange={handleGroupChange}>
-            <MenuItem value="">なし</MenuItem>
-            {groups.map((g) => (
-              <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+      <Box sx={{ display: 'flex', gap: 2 }}>
+        <TextField
+          label="タスク名"
+          size="small"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          sx={{ flexGrow: 1 }}
+        />
+        <TextField
+          label="期限"
+          type="datetime-local"
+          size="small"
+          value={deadline}
+          onChange={(e) => setDeadline(e.target.value)}
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+        <Button type="submit" variant="contained" disabled={isSubmitting || !name.trim()}>
+          追加
+        </Button>
+      </Box>
+      {availableTags.length > 0 && (
+        <Autocomplete
+          multiple
+          size="small"
+          options={availableTags}
+          getOptionLabel={(option) => option.name}
+          value={selectedTags}
+          onChange={(_, newValue) => setSelectedTags(newValue)}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                label={option.name}
+                size="small"
+                {...getTagProps({ index })}
+                key={option.id}
+              />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField {...params} label="タグ" placeholder="タグを選択" />
+          )}
+        />
       )}
-      <Button type="submit" variant="contained" disabled={isSubmitting || !name.trim()}>
-        追加
-      </Button>
     </Box>
   );
 };

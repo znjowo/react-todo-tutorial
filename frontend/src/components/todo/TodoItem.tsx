@@ -1,4 +1,4 @@
-import { Checkbox, IconButton, ListItem, ListItemText, Typography } from '@mui/material';
+import { Checkbox, Chip, IconButton, ListItem, ListItemText, Typography, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Todo } from '../../common/types';
 
@@ -44,14 +44,30 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
           </Typography>
         }
         secondary={
-          todo.deadline && (
-            <Typography
-              variant="caption"
-              sx={{ color: isOverdue ? 'error.main' : 'text.secondary' }}
-            >
-              期限: {formatDeadline(todo.deadline)}
-            </Typography>
-          )
+          <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            {todo.deadline && (
+              <Typography
+                variant="caption"
+                component="span"
+                sx={{ color: isOverdue ? 'error.main' : 'text.secondary' }}
+              >
+                期限: {formatDeadline(todo.deadline)}
+              </Typography>
+            )}
+            {todo.tags.length > 0 && (
+              <Box component="span" sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {todo.tags.map((tag) => (
+                  <Chip
+                    key={tag.id}
+                    label={tag.name}
+                    size="small"
+                    variant="outlined"
+                    sx={{ height: 20, fontSize: '0.7rem' }}
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
         }
       />
     </ListItem>
